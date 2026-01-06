@@ -43,13 +43,13 @@
 
     /** If this user follows the given name, returns true; otherwise returns false. */
     public boolean follows(String name) {
-        if (name.length() == 0 || name.length() == -1)
+        if (name == null || name.length() == 0)
             return false;
-        for (int i = 0; i < follows.length; i++){
-            String nameCheking = follows[i];
-            if (nameCheking == null)
+        for (int i = 0; i < follows.length; i++) {
+            String nameChecking = follows[i];
+            if (nameChecking == null)
                 break;
-            if (nameCheking.contains(name) && (name.length() - nameCheking.length() == 0))
+            if (nameChecking.equals(name))
                 return true;
         }
         return false;
@@ -57,7 +57,7 @@
     /** Makes this user follow the given name. If successful, returns true. 
      *  If this user already follows the given name, or if the follows list is full, does nothing and returns false; */
     public boolean addFollowee(String name) {
-        if (follows(name) || follows[follows.length - 1] != null)
+        if (name == null || follows(name) || follows[follows.length - 1] != null)
             return false;
         int index = 0;
         while (follows[index] != null)
@@ -70,16 +70,18 @@
     /** Removes the given name from the follows list of this user. If successful, returns true.
      *  If the name is not in the list, does nothing and returns false. */
     public boolean removeFollowee(String name) {
-        for (int i = 0; i < follows.length && follows[i] != null; i++){
-            String nameCheking = follows[i];
-            if (nameCheking.contains(name) && (name.length() - nameCheking.length() == 0)){
-                follows[i] = null;
-                i++;
-                while (i < follows.length && follows[i] != null){
-                    follows[i-1] = follows[i];
-                    i++;
+        if (name == null)
+            return false;
+        for (int i = 0; i < follows.length && follows[i] != null; i++) {
+            if (name.equals(follows[i])) {
+                for (int j = i; j < follows.length - 1; j++) {
+                    follows[j] = follows[j + 1];
+                    if (follows[j] == null)
+                        break;
                 }
-                follows[i - 1] = null;
+                follows[follows.length - 1] = null;
+                if (fCount > 0)
+                    fCount--;
                 return true;
             }
         }
@@ -89,9 +91,11 @@
     /** Counts the number of users that both this user and the other user follow.
     /*  Notice: This is the size of the intersection of the two follows lists. */
     public int countMutual(User other) {
+        if (other == null)
+            return 0;
         int counter = 0;
         String[] a = other.getfFollows();
-        for (int i = 0; i < a.length && a[i] != null; i++){
+        for (int i = 0; i < a.length && a[i] != null; i++) {
             if (follows(a[i]))
                 counter++;
         }
